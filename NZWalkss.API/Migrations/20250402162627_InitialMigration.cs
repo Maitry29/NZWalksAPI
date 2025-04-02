@@ -8,17 +8,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NZWalks.API.Migrations
 {
     /// <inheritdoc />
-    public partial class addSeedDataToDB : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Walks_Regions_RegionId",
-                table: "Walks");
+            migrationBuilder.CreateTable(
+                name: "Difficulties",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Difficulties", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
-                name: "RegionDto",
+                name: "Regions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -28,7 +36,36 @@ namespace NZWalks.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RegionDto", x => x.Id);
+                    table.PrimaryKey("PK_Regions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Walks",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LengthInKm = table.Column<double>(type: "float", nullable: false),
+                    WalkImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DifficultyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RegionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Walks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Walks_Difficulties_DifficultyId",
+                        column: x => x.DifficultyId,
+                        principalTable: "Difficulties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Walks_Regions_RegionId",
+                        column: x => x.RegionId,
+                        principalTable: "Regions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -54,77 +91,28 @@ namespace NZWalks.API.Migrations
                     { new Guid("f7248fc3-2585-4efb-8d1d-1c555f4087f6"), "AKL", "Auckland", "https://images.pexels.com/photos/5169056/pexels-photo-5169056.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
                 });
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Walks_RegionDto_RegionId",
+            migrationBuilder.CreateIndex(
+                name: "IX_Walks_DifficultyId",
                 table: "Walks",
-                column: "RegionId",
-                principalTable: "RegionDto",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                column: "DifficultyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Walks_RegionId",
+                table: "Walks",
+                column: "RegionId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Walks_RegionDto_RegionId",
-                table: "Walks");
+            migrationBuilder.DropTable(
+                name: "Walks");
 
             migrationBuilder.DropTable(
-                name: "RegionDto");
+                name: "Difficulties");
 
-            migrationBuilder.DeleteData(
-                table: "Difficulties",
-                keyColumn: "Id",
-                keyValue: new Guid("54466f17-02af-48e7-8ed3-5a4a8bfacf6f"));
-
-            migrationBuilder.DeleteData(
-                table: "Difficulties",
-                keyColumn: "Id",
-                keyValue: new Guid("ea294873-7a8c-4c0f-bfa7-a2eb492cbf8c"));
-
-            migrationBuilder.DeleteData(
-                table: "Difficulties",
-                keyColumn: "Id",
-                keyValue: new Guid("f808ddcd-b5e5-4d80-b732-1ca523e48434"));
-
-            migrationBuilder.DeleteData(
-                table: "Regions",
-                keyColumn: "Id",
-                keyValue: new Guid("14ceba71-4b51-4777-9b17-46602cf66153"));
-
-            migrationBuilder.DeleteData(
-                table: "Regions",
-                keyColumn: "Id",
-                keyValue: new Guid("6884f7d7-ad1f-4101-8df3-7a6fa7387d81"));
-
-            migrationBuilder.DeleteData(
-                table: "Regions",
-                keyColumn: "Id",
-                keyValue: new Guid("906cb139-415a-4bbb-a174-1a1faf9fb1f6"));
-
-            migrationBuilder.DeleteData(
-                table: "Regions",
-                keyColumn: "Id",
-                keyValue: new Guid("cfa06ed2-bf65-4b65-93ed-c9d286ddb0de"));
-
-            migrationBuilder.DeleteData(
-                table: "Regions",
-                keyColumn: "Id",
-                keyValue: new Guid("f077a22e-4248-4bf6-b564-c7cf4e250263"));
-
-            migrationBuilder.DeleteData(
-                table: "Regions",
-                keyColumn: "Id",
-                keyValue: new Guid("f7248fc3-2585-4efb-8d1d-1c555f4087f6"));
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Walks_Regions_RegionId",
-                table: "Walks",
-                column: "RegionId",
-                principalTable: "Regions",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+            migrationBuilder.DropTable(
+                name: "Regions");
         }
     }
 }
